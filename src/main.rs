@@ -23,6 +23,7 @@ use argon2::{
 };
 use std::{
     borrow::Cow,
+    env,
     fmt::Display,
     fs,
     io::{self, Read as _, Write as _},
@@ -34,7 +35,6 @@ use std::{
 };
 use stdont::ResultExt as _;
 
-use etcetera::AppStrategy as _;
 use serde::{de::Error as _, Deserialize, Deserializer};
 use zeroize::Zeroizing;
 
@@ -45,16 +45,12 @@ struct Config {
 }
 
 fn main() -> ExitCode {
-    let dirs = etcetera::choose_app_strategy(etcetera::AppStrategyArgs {
-        top_level_domain: String::new(),
-        author: String::new(),
-        app_name: "passnag".to_owned(),
-    })
-    .expect_display("failed to find app directories");
-    let passwords_dir = dirs.data_dir();
+    let config_dir = find_dir("XDG_CONFIG_HOME", ".config");
+    let passwords_dir = find_dir("XDG_DATA_HOME", ".local/share");
+
     fs::create_dir_all(&passwords_dir).expect_display("failed to create data dir");
 
-    let config = parse_config(&dirs.config_dir());
+    let config = parse_config(&config_dir);
 
     let args: Vec<_> = std::env::args().collect();
     let args: Vec<_> = args.iter().skip(1).map(String::as_str).collect();
@@ -190,6 +186,21 @@ fn with_no_echo<R>(f: impl FnOnce() -> R) -> io::Result<R> {
         return Err(io::Error::last_os_error());
     }
     Ok(res)
+}
+
+#[allow(deprecated, reason = "don't care about windows")]
+fn find_dir(env: &str, default: impl AsRef<Path>) -> PathBuf {
+    if let Ok(custom) = env::var(env) {
+        PathBuf::from_iter([custom.as_str(), "passnag"])
+    } else {
+        PathBuf::from_iter([
+            env::home_dir()
+                .expect("failed to find home directory")
+                .as_path(),
+            default.as_ref(),
+            "passnag".as_ref(),
+        ])
+    }
 }
 
 fn parse_config(config_dir: &Path) -> Config {

@@ -12,7 +12,6 @@ categories = ["command-line-utilities"]
 [dependencies]
 argon2 = { version = "0.5.3", features = ["password-hash", "zeroize"] }
 rand_core = { version = "0.6.4", features = ["getrandom"] } # version compat with argon2
-etcetera = "0.8.0"
 libc = "0.2.169"
 serde = { version = "1.0.217", features = ["derive"] }
 stdont = "0.1.0"
