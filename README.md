@@ -9,10 +9,10 @@ add `passnag nag` to your shell config so it nags you every time you start a new
 run `passnag` to train your passwords. run `passnag all` to train _all_ of them, even if it's not time yet.
 run `passnag add <name>` to add a new password.
 
-passwords are stored in `$XDG_DATA_DIR/passnag/<name>`, salted + hashed with argon2id.
+passwords are stored in `$XDG_DATA_HOME/passnag/<name>`, salted + hashed with argon2id.
 a token attempt is made to zeroize passwords from memory, but I don't really believe in reliable zeroizing.
 
-you can store a config at `$XDG_CONFIG_DIR/passnag/config.toml`, which has a single key right now:
+you can store a config at `$XDG_CONFIG_HOME/passnag/config.toml`, which has a single key right now:
 
 ```toml
 interval = "1w 1d 1h 1m 1s"
